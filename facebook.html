@@ -1,0 +1,106 @@
+<html>
+  <head>
+    <title>FB API Test</title>
+    <style>
+      .fansThumbnail img {
+        transition: all .2s ease-in-out;
+        border-radius: 2px;
+        border: rgba(255, 255, 255, .1) groove;
+        display: block;
+        margin-left: auto;
+        margin-right: auto
+      }
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <main>
+      <a href="javascript:" onclick="showMe()">show my data</a>
+      <a href="javascript:" onclick="showFansThumbnail()">show fans pic.</a>
+      <h1 class="id"></h1>
+      <img class="img-thumbnail"></img>
+      <h1 class="fansName"></h1>
+      <div class="fansThumbnail"></div>
+      <footer style="margin-top: 5px;">
+        <div
+          class="fb-like"
+          data-share="true"
+          data-width="450"
+          data-show-faces="true">
+        </div>
+      </footer>
+    </main>
+    <script>
+      function showFansThumbnail() {
+        FB.api('/259307454182390', function(res) {
+          console.log(res);
+          document.querySelector('.fansName').textContent = res.name;
+
+        });
+        // 259307454182390/albums
+        // 269004969879305/photos
+        FB.api('/259307454182390/albums', function(res) {
+          console.log(res);
+          FB.api('/' + res.data[0].id + '/photos', function(res) {
+            console.log(res);
+            res.data.forEach(function (element, idx) {
+              var img = document.createElement('img');
+              img.setAttribute('src', element.source)
+              document.querySelector('.fansThumbnail').appendChild(img);
+            });
+          });
+        });
+      }
+      function showMe() {
+        FB.api('/me', function(res) {
+          console.log(res);
+          var picture = 'http://graph.facebook.com/'+ res.id +'/picture?width=140&height=140';
+          document.querySelector('.id').textContent = res.name;
+          document.querySelector('.img-thumbnail').setAttribute('src', picture);
+        });
+      }
+
+      window.fbAsyncInit = function() {
+        FB.init({
+        appId      : '350280875077365',
+        xfbml      : true,
+        version    : 'v2.3'
+        });
+        init();
+      };
+
+      (function(d, s, id){
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {return;}
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+
+      function init() {
+        FB.getLoginStatus(function(response) {
+          if (response.status === 'connected') {
+            console.log('login');
+          }
+          else {
+            // alert('Please login');
+            // location.assign('https://www.facebook.com/dialog/oauth?client_id=350280875077365&redirect_uri='+location.href);
+            FB.login(function(response) {
+              if (response.authResponse) {
+                console.log('Welcome!  Fetching your information.... ');
+                FB.api('/me', function(response) {
+                  console.log('Good to see you, ' + response.name + '.');
+                });
+              } else {
+                console.log('User cancelled login or did not fully authorize.');
+              }
+            }, {
+                scope: 'publish_actions', 
+                return_scopes: true
+            });
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
