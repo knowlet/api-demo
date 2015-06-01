@@ -21,7 +21,10 @@
       $.get('https://staff.sitcon.org/api/userprofiles/', function(res) {
         $('.numbers').text("總共有 " + res.length + " 工作人員");
         res.forEach(function (element, idx) {
-          $(".thumbnail").append("<img src='" + element.avatar + "' />");
+          if (element.avatar.startsWith("/"))
+            $(".thumbnail").append("<img src='https://staff.sitcon.org" + element.avatar + "' />");
+          else
+            $(".thumbnail").append("<img src='" + element.avatar + "' />");
         })
       });
     });
